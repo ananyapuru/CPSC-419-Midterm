@@ -1,0 +1,72 @@
+/* Header background, text alignment */
+.header {
+  background-color: lightgray;
+  width: 100%;
+  text-align: center;
+  padding: 10px 0;
+}
+
+/* Title and time color, font sizes */
+.title, .datetime {
+  color: #00356b;
+  margin: 0;
+  padding: 10px 0;
+}
+
+.title, h1 {
+  font-size: 20pt;
+}
+
+.datetime h3 {
+  font-size: 14pt;
+}
+
+h3 {
+  font-size: 14pt;
+}
+
+/* Display buttons below the card and center-align them */
+.searchbar {
+  display: inline-block;
+  text-align: center;
+  width: 100%;
+  margin: 10px 0;
+}
+
+.results {
+  display: inline-block;
+  background-color: white;
+  border: 1px solid #00356b;
+  border-radius: 15px;
+  padding: 15px;
+  margin: 20px;
+  box-shadow: 0 10px 6px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+img {
+  max-height: 480px;
+  max-width: 100%;
+  height: auto;
+  width: auto;
+  margin: 0 auto;
+  display: block;
+}
+ul {
+  list-style-type: none;
+}
+
+#resultsParagraph img {
+  max-width: 100%;
+}
+
+
+.main-content {
+  text-align: center;
+  width: 100%;
+}
+
+

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Art Gallery Slideshow</title>
+    <link rel="stylesheet" href="static/slideshow.css" />
+  </head>
+
+  <body>
+    <div class="header">
+      <h1 class="title">Art Gallery Slideshow</h1>
+      <div class="datetime">
+        <h3></h3>
+        <span id="datetimeSpan"></span>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="results">
+        <div id="resultsParagraph" obj_id=""></div>
+        <div id="ImageLocation"></div>
+      </div>
+
+      <div class="searchbar">
+        <input type="button" id="next" autofocus value="Next" />
+        <input type="button" id="previous" value="Previous" />
+        <input type="button" id="pause" value="Pause" />
+      </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <script>
+      "use strict";
+
+      let slideInterval = null;
+      let playing = true;
+      let request = null;
+
+      function getAmPm() {
+        let dateTime = new Date();
+        let hours = dateTime.getHours();
+        let amPm = "morning";
+        if (hours >= 12) amPm = "afternoon";
+        $("#ampmSpan").html(amPm);
+      }
+
+      function getDateTime() {
+        let dateTime = new Date();
+        $("#datetimeSpan").html(dateTime.toLocaleString());
+      }
+
+      function handleResponse(response) {
+        console.log(response);
+        $("#resultsParagraph").html(response);
+
+        let objId = $("#resultsParagraph p").eq(0).text();
+        console.log("Object ID:", objId);
+
+        // Check if objId is not empty
+        if (objId) {
+          let objLabel = $("#resultsParagraph h2 strong").text();
+          let objDate = $("#resultsParagraph h3 strong").text();
+          let altText = objLabel + ", " + objDate;
+          let imageURL =
+            "https://media.collections.yale.edu/thumbnail/yuag/obj/" + objId;
+          let imageElement =
+            '<img src=" ' +
+            imageURL +
+            ' " alt=" ' +
+            altText +
+            ' " onerror="this.onerror=null; this.src=\'/static/image_not_available.png\'; "> ';
+
+          let otherContent = $("#resultsParagraph").html();
+          $("#resultsParagraph").html(imageElement + otherContent);
+          console.log("Image URL:", imageURL);
+          prevobjs.push({ result: response, objId: objId });
+        } else {
+          setTimeout(getResults, 100);
+        }
+      }
+
+      function getResults() {
+        $("#ImageLocation").html("");
+        let obj_id = $("#resultsParagraph").attr("obj_id");
+        let url = "/searchresults?obj_id=" + encodeURIComponent(obj_id);
+        if (request != null) request.abort();
+        request = $.ajax({
+          type: "GET",
+          url: url,
+          success: handleResponse,
+        });
+      }
+
+      function pauseSlideshow() {
+        $("#pause").html("Resume");
+        playing = false;
+        clearInterval(slideInterval);
+      }
+
+      function playSlideshow() {
+        $("#pause").html("Pause");
+        playing = true;
+        slideInterval = setInterval(getResults, 5000);
+      }
+
+      function resetSlideshow() {
+        if (playing) {
+          clearInterval(slideInterval);
+          slideInterval = setInterval(getResults, 5000);
+        }
+      }
+
+      $("#next").on("click", function () {
+        setTimeout(function () {
+          getResults();
+          resetSlideshow();
+        }, 500);
+      });
+
+      $("#pause").on("click", function () {
+        var elem = document.getElementById("pause");
+        if (elem.value == "Resume") elem.value = "Pause";
+        else if (elem.value == "Pause") elem.value = "Resume";
+        if (playing) {
+          pauseSlideshow();
+        } else {
+          playSlideshow();
+        }
+      });
+
+      let prevobjs = [];
+      $("document").ready(function () {
+        getAmPm();
+        getDateTime();
+        getResults(); // Initial object!
+        playSlideshow();
+
+        // Previous Button
+        $("#previous").on("click", function () {
+          if (prevobjs.length > 0) {
+            prevobjs.pop();
+            let previous = prevobjs.pop();
+            $("#resultsParagraph").html(previous.result);
+            let imageURL =
+              "https://media.collections.yale.edu/thumbnail/yuag/obj/" +
+              previous.objId;
+            let altText =
+              $("#resultsParagraph h2 strong").text() +
+              ", " +
+              $("#resultsParagraph h3 strong").text();
+            let imageElement =
+              '<img src="' +
+              imageURL +
+              '" style="max-height: 480px; max-width: 100%;" alt="' +
+              altText +
+              '" onerror="this.onerror=null; this.src=\'/static/image_not_available.png\';">';
+            // $("#ImageLocation").html(imageElement);
+            let otherContent2 = $("#resultsParagraph").html();
+            $("#resultsParagraph").html(imageElement + otherContent2);
+          }
+
+          if (playing) {
+            pauseSlideshow();
+            document.getElementById("pause").value = "Resume";
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
